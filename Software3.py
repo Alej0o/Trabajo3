@@ -62,3 +62,28 @@ def registro():
 
     flash(" Cuenta Registrada")
     return redirect(url_for('reg'))
+
+#METODOS DESCARGA DESDE AQUI 
+
+#Funcion que recorre todos los archivos almacenados en la carpeta (archivos)  
+
+def listaArchivos():
+    urlFiles = 'static/archivos'
+    return (os.listdir(urlFiles))
+     
+#Creando un Decorador
+        
+@app.route('/coordinador/Coordproyectos/descargar/<string:nombreFoto>', methods=['GET','POST'])
+def descargar_Archivo(nombreFoto=''):
+    basepath = path.dirname (_file_) 
+    url_File = path.join (basepath, 'static/archivos', nombreFoto)
+    #send_file toma 2 parametros, el primero será la ruta del archivo y el
+    # 2 será as_attachment=True porque deseamos que el archivo sea descargable.
+    resp =  send_file(url_File, as_attachment=True)
+    return resp    
+
+
+#Redireccionando cuando la página no existe
+@app.errorhandler(404)
+def not_found(error):
+    return 'Ruta no encontrada'
