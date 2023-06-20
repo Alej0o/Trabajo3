@@ -46,6 +46,7 @@ def semillerista_index():
     connection.commit()
 
     return render_template('semillerista/index.html',semi=semi,idsemi=idsemi)
+
   @app.route('/registro/usuario', methods=['POST'])
 def registro():
     nu=request.form['nu']
