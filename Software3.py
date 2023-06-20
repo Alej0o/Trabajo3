@@ -1,5 +1,7 @@
 from flask import render_template, request, redirect, session
 import psycopg2
+from flask import send_file
+import uuid
 @app.route("/css/<archivocss>")
 def css_link(archivocss):
     return send_from_directory(os.path.join('templates/proyecto/css'),archivocss)
