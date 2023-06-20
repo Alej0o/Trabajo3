@@ -1,0 +1,14 @@
+{% include 'coordinador/cabecera.html' %}
+
+{% for semi in sem %}
+<div class="p-5 bg-light">
+    <div class="container">
+      <h1 class="display-3">Bienvenid@<strong> {{ session['name'] }}</strong></h1>
+      <p class="lead">Coordinador del Semillero {{ sem[0][1] }}</p>
+      <hr class="my-2">
+    </div>
+</div>
+{% endfor %}
+
+
+{% include 'coordinador/pie.html' %}

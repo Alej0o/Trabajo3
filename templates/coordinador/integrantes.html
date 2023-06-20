@@ -1,0 +1,79 @@
+{% include 'coordinador/cabecera.html' %}
+
+<br>
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-6">
+            <div class="table-responsive">
+                <table class="table table-bordered" >
+                    <thead>
+                        <h3><strong>USUARIOS PARA AGREGAR</strong></h3>
+                        {% with messages =get_flashed_messages() %}
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Success</strong>{{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% endwith %}
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Agregar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for integrante in integrantes %}
+                        <tr class="">
+                            <td>{{ integrante[1] }}</td>
+                            <td>{{ integrante[2] }}</td>
+                            <td>
+                                <form action="/coordinador/integrantes/agregar" method='post'>
+                                    <input value='{{ integrante[1] }}' type="text" name="us" id="">
+                                    <input value='{{ integrante[2] }}' type="text" name="email" id="">
+                                    {% for semi in sem %}
+                                    <input value='{{ sem[0][0] }}' type="text" name="idsem" id="">
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-danger">Agregar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            
+        </div>
+        
+        <div class="col-md-6">
+            <div class="table-responsive">
+                <table class="table table-bordered" >
+                    <thead>
+                        <h3><strong>USUARIOS DE MI SEMILLERO</strong></h3>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sem in semest %}
+                        <tr class="">
+                            <td>{{ sem[2] }}</td>
+                            <td>{{ sem[1] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            
+        </div>
+    </div>
+    </div>
+</div>
+
+{% include 'coordinador/pie.html' %}

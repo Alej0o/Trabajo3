@@ -1,0 +1,14 @@
+{% include 'director/cabecera.html' %}
+
+    <div class="p-5 bg-light">
+        <div class="container">
+          <h1 class="display-3">Bienvenid@ Director<strong> {{ session['name'] }}</strong></h1>
+          <p class="lead">Aqui podra administrar los semilleros</p>
+          <hr class="my-2">
+          <p class="lead">
+            <a class="btn btn-primary btn-lg"  href="/director/semilleros" role="button">Empezar la Gestion</a>
+          </p>
+        </div>
+      </div>
+
+{% include 'director/pie.html' %}
