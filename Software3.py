@@ -22,7 +22,18 @@ def director_index():
   @app.route('/n')
 def indefinido_index():
     return render_template('/proyecto/indefinido.html')
+    
+@app.route('/director/semilleros')
+def director_semilleros():
 
+    cursor=connection.cursor()
+    cursor.execute("select * from semillero")
+    semilleros=cursor.fetchall()
+    connection.commit()
+    print(semilleros)
+
+    return render_template('director/director.html', semilleros=semilleros)
+    
 @app.route('/coordinador/')
 def coordinador_index():
     
@@ -49,7 +60,61 @@ def semillerista_index():
 
     return render_template('semillerista/index.html',semi=semi,idsemi=idsemi)
 
-  @app.route('/registro/usuario', methods=['POST'])
+@app.route('/director/semilleros/guardar', methods=['POST'])
+def director_semilleros_guardar():
+
+    _nombre=request.form['txtNombre']
+    _ubicacion=request.form['txtUbicacion']
+    _email=request.form['email']
+    _idrol=2
+
+    cursor=connection.cursor()
+    cursor.execute("select * from usuarios where email=%s",[_email])
+    usuario=cursor.fetchone()
+
+    if usuario is not None:
+
+        cursor=connection.cursor()
+        sql="insert into semillero(nombre, ubicacion, email) values(%s,%s,%s)"
+        datos=(_nombre,_ubicacion,_email)
+        cursor.execute(sql,datos)
+        connection.commit
+
+        cursor=connection.cursor()
+        sql="update usuarios set id_rol={0} where email='{1}'".format(_idrol,_email)
+        datos1=(_idrol)
+        cursor.execute(sql,datos1)
+        connection.commit
+        flash(" Registro exitoso")
+        return redirect(url_for('director_semilleros'))
+    flash(" El correo ingresado no esta registrado")
+    return redirect(url_for('director_semilleros'))
+
+@app.route('/coordinador/integrantes/agregar', methods=['POST'])
+def coord_agregar_integrante():
+
+    _idsem=request.form['idsem']
+    _email=request.form['email']
+    _idrol=3
+    _us=request.form['us']
+
+    cursor=connection.cursor()
+    sql="insert into semest(idsem,email,username) values(%s,%s,%s)"
+    datos=(_idsem,_email,_us)
+    cursor.execute(sql,datos)
+    connection.commit()
+
+    cursor=connection.cursor()
+    sql="update usuarios set id_rol={0} where email='{1}'".format(_idrol,_email)
+    datos1=(_idrol)
+    cursor.execute(sql,datos1)
+    connection.commit
+
+    flash(" Se agrego con exito") 
+
+    return redirect('/coordinador/integrantes')
+
+@app.route('/registro/usuario', methods=['POST'])
 def registro():
     nu=request.form['nu']
     email=request.form['email']
