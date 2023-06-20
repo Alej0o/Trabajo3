@@ -64,15 +64,12 @@ def registro():
     return redirect(url_for('reg'))
 
 #METODOS DESCARGA DESDE AQUI 
-
 #Funcion que recorre todos los archivos almacenados en la carpeta (archivos)  
-
 def listaArchivos():
     urlFiles = 'static/archivos'
     return (os.listdir(urlFiles))
      
 #Creando un Decorador
-        
 @app.route('/coordinador/Coordproyectos/descargar/<string:nombreFoto>', methods=['GET','POST'])
 def descargar_Archivo(nombreFoto=''):
     basepath = path.dirname (_file_) 
@@ -82,8 +79,25 @@ def descargar_Archivo(nombreFoto=''):
     resp =  send_file(url_File, as_attachment=True)
     return resp    
 
-
 #Redireccionando cuando la página no existe
 @app.errorhandler(404)
 def not_found(error):
     return 'Ruta no encontrada'
+
+#METODOS NUEVO PROYECTO DESDE AQUI
+@app.route('/coordinador/Coordproyectos', methods=['GET', 'POST'])
+def semillero_coord():  
+    
+    idsem=request.form['idsem']
+    cursor = connection.cursor()
+    cursor.execute("select * from proyecto where idsem={0}".format(idsem))
+    tasks = cursor.fetchall()
+    connection.commit()
+
+    insertObject = []
+    columnNames = [column[0] for column in cursor.description]
+    for record in tasks:
+        insertObject.append(dict(zip(columnNames, record)))
+    cursor.close()
+
+    return render_template('coordinador/Coordproyectos.html', tasks=insertObject,list_Photos = listaArchivos())
