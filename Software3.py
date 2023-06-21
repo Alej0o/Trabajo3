@@ -168,3 +168,13 @@ def semillero_coord():
     cursor.close()
 
     return render_template('coordinador/Coordproyectos.html', tasks=insertObject,list_Photos = listaArchivos())
+
+#MAIN
+@app.route('/coordinador/Coordproyectos/archivos/<ver>')
+def archivos(ver):
+    print(ver)
+    return send_from_directory(os.path.join('static/archivos'),ver)
+
+
+if _name=='__main_':
+    app.run(debug=True)
