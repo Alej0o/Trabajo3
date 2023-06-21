@@ -1,9 +1,19 @@
+import os
+from flask import Flask, flash, url_for
 from flask import render_template, request, redirect, session
 import psycopg2
 from flask import send_file
 import uuid
 from werkzeug.utils import secure_filename
 from os import path
+
+app=Flask(__name__)
+app.secret_key="steveen"
+
+
+connection=psycopg2.connect(dbname="proysemilleros", user="postgres", password="st3v3")
+
+
 @app.route("/css/<archivocss>")
 def css_link(archivocss):
     return send_from_directory(os.path.join('templates/proyecto/css'),archivocss)
