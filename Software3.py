@@ -6,6 +6,8 @@ from flask import send_file
 import uuid
 from werkzeug.utils import secure_filename
 from os import path
+from datetime import datetime
+from flask import send_from_directory
 
 app=Flask(__name__)
 app.secret_key="steveen"
@@ -17,6 +19,30 @@ connection=psycopg2.connect(dbname="proysemilleros", user="postgres", password="
 @app.route("/css/<archivocss>")
 def css_link(archivocss):
     return send_from_directory(os.path.join('templates/proyecto/css'),archivocss)
+@app.route('/login', methods=['POST'])
+def login():
+    email=request.form["email"]
+    password=request.form["password"]
+
+    cursor=connection.cursor()
+    cursor.execute("select * from usuarios where email=%s and password=%s",[email,password])
+    usuario=cursor.fetchone()
+
+    if usuario is not None:
+        session['email']=email
+        session['name']=usuario[1]
+        session['id_rol']=usuario[4]
+
+        if session['id_rol']==1:
+            return render_template('director/index.html')
+        elif session['id_rol']==2:
+            return redirect(url_for('coordinador_index'))
+        elif session['id_rol']==3:
+            return redirect(url_for('semillerista_index'))
+        elif session['id_rol']==4:
+            return redirect(url_for('indefinido_index'))
+    else:
+        return render_template('proyecto/index.html', message=" Las credenciales nos son correctas")
 
 @app.route('/')
 def inicio():
@@ -25,6 +51,10 @@ def inicio():
 @app.route('/registro')
 def reg():
     return render_template('proyecto/registro.html')
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('inicio'))
 
 @app.route('/director/')
 def director_index():
@@ -32,6 +62,28 @@ def director_index():
   @app.route('/n')
 def indefinido_index():
     return render_template('/proyecto/indefinido.html')
+@app.route('/coordinador/integrantes')
+def coordinador_integrantes():
+
+    email=session['email']
+    cursor=connection.cursor()
+    cursor.execute("select * from semillero where email='{0}'".format(email))
+    sem=cursor.fetchall()
+    connection.commit()
+
+    cursor=connection.cursor()
+    cursor.execute("select idus,username,email from usuarios where id_rol=4")
+    integrantes=cursor.fetchall()
+    connection.commit()
+    print(integrantes)
+
+    idsem=str(sem[0][0])
+    cursor=connection.cursor()
+    cursor.execute("select * from semest where idsem={0}".format(idsem))
+    semest=cursor.fetchall()
+    connection.commit()
+
+    return render_template('coordinador/integrantes.html', integrantes=integrantes,sem=sem,semest=semest)
     
 @app.route('/director/semilleros')
 def director_semilleros():
