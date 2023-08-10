@@ -1,0 +1,28 @@
+{% include 'semillerista/cabecera.html' %}
+
+<br>
+<div class="container">
+    <a class="navbar-brand fw-bolder" href="#">MIS PROYECTOS</a>
+    <!-- Tasks -->
+    <div class="row row-col-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 mt-3">
+        {% for task in tasks %}
+        <div class="col-sm-4">
+        <div class="card mb-3">
+            <img src="{{url_for('static', filename='imgs/R.png')}}" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{task.titulo}}</h5>
+              <p class="card-text">{{task.descripcion}}</p>
+              <h5><strong>Estado: </strong>{{task.estado}}</h5>
+              <a class="btn btn-primary" href="/semillerista/proyecto/evidencia/{{task.idproy}}" role="button">IR</a>
+              </div>
+          </div>
+        </div>
+
+        {% endfor %}
+    </div>
+
+</div>
+
+</body>
+
+{% include 'semillerista/pie.html' %}

@@ -1,0 +1,182 @@
+
+{% include 'coordinador/cabecera.html' %}
+
+{% with messages =get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category=='succesproy' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ </div>
+{% elif category=='errorints' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error</strong>{{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<br>
+
+<nav class="navbar navbar-light" style="background-color: #e3f2fd;">
+  <div class="container-fluid">
+    <a class="navbar-brand">Buscar Proyecto</a>
+    <form action="/coordinador/Coordproyectos" class="d-flex" method="post">
+      <input class="form-control me-2" maxlength="30"  type="search" placeholder="Ingrese nombre proyecto" name="buscarproy" aria-label="Search" required>
+      <button class="btn btn-outline-success" type="submit">Buscar</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="card mt-3 w-25 mx-auto d-block">
+    <div class="card-body d-flex">
+        <img src="{{url_for('static', filename='imgs/circle-plus-solid.svg')}}" width="25" class="mx-auto d-block" data-bs-toggle="modal" data-bs-target="#task-modal">
+    </div>
+  </div>
+
+  <a class="navbar-brand fw-bolder" href="{{url_for('semillero_coord')}}">PROYECTOS ASIGNADOS</a>
+    <!-- Tasks -->
+    <div class="row row-col-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 mt-3">
+        {% for task in tasks %}
+        <div class="col-sm-4">
+        <div class="card mb-3">
+            <img src="{{url_for('static', filename='imgs/R.png')}}" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{task.titulo}}</h5>
+              <p class="card-text">{{task.descripcion}}</p>
+              <h5><strong>Estado: </strong>{{task.estado}}</h5>
+              <button class="btn btn-info btn-sm" id="btn-edit{{ task.idproy}}" data-bs-toggle="modal" data-bs-target="#modal{{task.idproy}}">EDITAR</button>
+              <a class="btn btn-primary btn-sm" href="/coordinador/Coordproyectos/proyecto/{{ task.idproy }}" role="button">IR</a>
+              <a class="btn btn-warning btn-sm" href="/coordinador/Coordproyectos/participante/{{ task.idproy }}" role="button">PARTICIPANTE</a>
+            </div>
+          </div>
+        </div>
+    
+        {% endfor %}
+    </div>
+    
+    </div>
+
+    {% with messages =get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    {% if category=='errorsearch' %}
+    <div class="search">
+      <p class="psearch">No hay resultados para la busqueda: <strong>{{ message }}</strong></p>
+    </div>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    
+
+    <!-- Estado Modal -->
+  {% for task in tasks %}
+    <div class="modal fade" id="modal{{ task.idproy }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modificar Proyecto</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form action="/coordinador/Coordproyectos/proyecto/estado/{{ task.idproy }}" method="post">
+
+                <div class="form-floating mb-3">
+                  <input type="text" class="form-control" value="{{task.titulo}}" name="title" id="titulo" aria-describedby="helpId" placeholder="Titulo" required autofocus>
+                  <label for="titulo">Titulo</label>
+                </div>
+      
+                <div class="form-floating mb-3">
+                  <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus>{{task.descripcion}}</textarea>
+                  <label for="floatingTextarea2">Descripción</label>
+                </div>
+      
+                <div class="form-floating mb-3">
+                  <select class="form-select" id="floatingSelect" name="tiproy" required autofocus>
+                    <option selected>{{task.tipoproy}}</option>
+                    <option value="Investigacion">Investigacion</option>
+                    <option value="Inovacion y Desarrollo">Innovacion y Desarrollo</option>
+                    <option value="Emprendimiento">Emprendimiento</option>
+                  </select>
+                  <label for="floatingSelect">Tipo de Proyecto</label>
+                </div>
+        
+                <div class="form-floating mb-3">
+                  <select class="form-select"  name="cmbx_estado" id="floatingSelect" required autofocus>
+                    <option selected>{{task.estado}}</option>
+                    <option value="Propuesta">Propuesta</option>
+                    <option value="En curso">En curso</option>
+                    <option value="Terminado">Terminado</option>
+                  </select>
+                  <label for="floatingSelect">Estado</label>
+                </div> 
+
+              </div>
+              <div class="modal-footer">
+                <button type="submit" class="btn btn-outline-success">Guardar Cambios</button>
+              </div>
+              </form>
+        </div>
+      </div>
+  </div>
+  {% endfor %}
+
+    
+
+  <!-- Task Modal -->
+<div class="modal fade" id="task-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+  <div class="modal-content">
+      <div class="modal-header">
+      <h1 class="modal-title fs-5" id="exampleModalLabel">Nuevo Proyecto</h1>
+      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       <form action="/new-task" method="post" autocomplete="off" enctype="multipart/form-data">
+
+          <div class="form-floating mb-3">
+            <input type="text" class="form-control" name="title" id="titulo" aria-describedby="helpId" placeholder="Titulo" required autofocus>
+            <label for="titulo">Titulo</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <textarea class="form-control" name="description" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus></textarea>
+            <label for="floatingTextarea2">Descripción</label>
+          </div>
+
+          <div class="form-floating mb-3">
+            <select class="form-select" id="floatingSelect" name="tiproy" required autofocus>
+              <option value="Investigacion">Investigacion</option>
+              <option value="Inovacion y Desarrollo">Innovacion y Desarrollo</option>
+              <option value="Emprendimiento">Emprendimiento</option>
+            </select>
+            <label for="floatingSelect">Tipo de Proyecto</label>
+          </div>
+  
+          <div class="form-floating mb-3">
+            <select class="form-select"  name="cmbx_estado" id="floatingSelect" required autofocus>
+              <option value="Propuesta">Propuesta</option>
+              <option value="En curso">En curso</option>
+              <option value="Terminado">Terminado</option>
+            </select>
+            <label for="floatingSelect">Estado</label>
+          </div> 
+
+          {% for semi in sem %}
+          <input value='{{ semi[0] }}' class="form-control mb-3" type="hidden" name="idsem">
+          {% endfor %}
+
+          <button type="submit" class="btn btn-primary w-100">Guardar</button>
+       </form>
+      </div>
+  </div>
+  </div>
+</div>
+
+  {% include 'coordinador/pie.html' %} 
