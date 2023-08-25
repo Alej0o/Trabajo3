@@ -66,6 +66,7 @@ def login():
     if usuario is not None:
         session["login"]=True
         session['email']=email
+        session['idus']=usuario[0]
         session['name']=usuario[1]
         session['id_rol']=usuario[4]
 
@@ -210,7 +211,14 @@ def director_semilleros_editar(id):
     cursor.execute("select * from usuarios where email=%s",[_emailnuevo])
     usuario=cursor.fetchone()
 
-    if usuario is not None:
+    cursor=connection.cursor()
+    cursor.execute("select * from semillero where email=%s",[_emailnuevo])
+    repetido=cursor.fetchone()
+
+    if repetido is not None:
+        flash(" El usuario ya cuenta con un semillero asignado",'erroreditsem')
+        return redirect(url_for('director_semilleros'))
+    elif usuario is not None:
         if _emailnuevo==_emailactual:
             cursor = connection.cursor()
             sql = "UPDATE semillero SET nombre = %s, ubicacion = %s, email = %s WHERE idsem = %s"
@@ -278,7 +286,7 @@ def cuenta():
     return render_template('/cuenta/cuenta.html',cuenta=cuenta)
 
 @app.route('/cuenta/editarcuenta', methods=['POST'])
-def editar_cuentadir():
+def editar_cuenta():
 
     if not "login" in session:
         return redirect("/")
@@ -306,7 +314,53 @@ def editar_cuentadir():
         connection.commit()
         flash(" Datos Actualizados",'success_cuenta')
         return redirect(url_for('cuenta'))
+
+@app.route('/cuenta/eliminarcuenta', methods=['POST'])
+def eliminar_cuenta():
+
+    if not "login" in session:
+        return redirect("/")
     
+    email=session['email']
+    idus=session['idus']
+    rol=session['id_rol']
+    newemail=''
+
+    if rol==4:
+        cursor=connection.cursor()
+        cursor.execute("delete from usuarios where email='{0}'".format(email))
+        connection.commit()
+    elif rol==3:
+        cursor=connection.cursor()
+        cursor.execute("delete from intproy as ip where idus='{0}'".format(idus))
+        connection.commit()
+
+        cursor=connection.cursor()
+        cursor.execute("delete from semest where idus='{0}'".format(idus))
+        connection.commit()
+
+        cursor=connection.cursor()
+        cursor.execute("delete from usuarios where idus='{0}'".format(idus))
+        connection.commit()
+
+    elif rol==2:
+        cursor = connection.cursor()
+        sql = "UPDATE semillero SET email = %s WHERE email = %s"
+        data = (newemail, email)
+        cursor.execute(sql, data)
+        connection.commit()
+
+        cursor=connection.cursor()
+        cursor.execute("delete from usuarios where email='{0}'".format(email))
+        connection.commit()
+
+    elif rol==1:
+        cursor=connection.cursor()
+        cursor.execute("delete from usuarios where email='{0}'".format(email))
+        connection.commit()
+
+    return redirect(url_for('inicio'))
+
 
 # Coordinador Agregar/Consultar/Quitar Integrante
 
@@ -322,6 +376,8 @@ def coordinador_integrantes():
     sem=cursor.fetchall()
     connection.commit()
 
+    idsemillero=sem[0][0]
+
     cursor=connection.cursor()
     cursor.execute("select idus,username,email from usuarios where id_rol=4")
     integrantes=cursor.fetchall()
@@ -329,7 +385,7 @@ def coordinador_integrantes():
     print(integrantes)
 
     cursor=connection.cursor()
-    cursor.execute("select u.idus,username,email from usuarios as u inner join semest as sm on u.idus=sm.idus")
+    cursor.execute("select u.idus,username,email from usuarios as u inner join semest as sm on u.idus=sm.idus where idsem={0}".format(idsemillero))
     semest=cursor.fetchall()
     connection.commit()
 
@@ -373,6 +429,13 @@ def delete(id):
     data = (id,)
     cursor.execute(sql, data)
     connection.commit()
+
+    cursor= connection.cursor()
+    sql = "delete from intproy where idus={0}".format(id)
+    data = (id,)
+    cursor.execute(sql, data)
+    connection.commit()
+
     _idrol=4
 
     cursor=connection.cursor()
@@ -458,6 +521,11 @@ def coordinador_eventos_eliminar():
         return redirect("/")
     
     _id=request.form['codeve']
+
+    cursor=connection.cursor()
+    cursor.execute("delete from vincularproy where codeve={0}".format(_id))
+    connection.commit()
+
     cursor=connection.cursor()
     cursor.execute("delete from evento where codeve={0}".format(_id))
     connection.commit()
@@ -519,12 +587,21 @@ def desvincular(idproy,idevent):
     if not "login" in session:
         return redirect("/")
     
-    cursor= connection.cursor()
-    sql = "delete from vincularproy where idproy={0} and codeve={1}".format(idproy,idevent)
-    cursor.execute(sql)
+    email=session['email']
+     
+    cursor=connection.cursor()
+    cursor.execute("select * from proyecto where idproy='{0}' and email='{1}'".format(idproy,email))
+    semillero=cursor.fetchall()
     connection.commit()
 
-    flash(" Proyecto Desvinculado", 'successproydesv') 
+    if semillero:
+        cursor= connection.cursor()
+        sql = "delete from vincularproy where idproy={0} and codeve={1}".format(idproy,idevent)
+        cursor.execute(sql)
+        connection.commit()
+        flash(" Proyecto Desvinculado", 'successproydesv') 
+    else:
+        flash(" Solo el coordinador del semillero puede desvincular este proyecto",'errordenegado')
 
     return redirect(url_for('vincular_proyecto',id=idevent))
 
@@ -544,26 +621,22 @@ def semillero_coord():
 
     idsem=str(sem[0][0])
 
-    cursor = connection.cursor()
-
     if request.method=="POST" and 'buscarproy' in request.form:
-        cursor.execute(" select * from proyecto where idsem={0} and titulo like '%".format(idsem) + request.form['buscarproy'] + "%'")
-    else:
-        cursor.execute("select * from proyecto where idsem={0}".format(idsem))
+        cursor = connection.cursor()
+        cursor.execute("select * from proyecto where idsem={0} and titulo like '%".format(idsem) + request.form['buscarproy'] + "%'")
+        proyecto=cursor.fetchall()
 
-    tasks = cursor.fetchall()
-    if tasks:
+        if proyecto:
+            connection.commit()
+        else:
+            flash(request.form['buscarproy'],'errorsearch')
+    else:
+        cursor=connection.cursor()
+        cursor.execute("select * from proyecto where idsem='{0}'".format(idsem))
+        proyecto=cursor.fetchall()
         connection.commit()
-    else:
-        flash(request.form['buscarproy'],'errorsearch')
-    
-    insertObject = []
-    columnNames = [column[0] for column in cursor.description]
-    for record in tasks:
-        insertObject.append(dict(zip(columnNames, record)))
-        cursor.close()
 
-    return render_template('coordinador/Coordproyectos.html', tasks=insertObject, list_Photos = listaArchivos(),sem=sem)
+    return render_template('coordinador/Coordproyectos.html',sem=sem,proyecto=proyecto)
 
 @app.route('/new-task', methods=['GET', 'POST'])
 def newTask():
@@ -693,6 +766,25 @@ def comentario():
     cursor.execute("update evidencia set comentario='{0}' where idev={1}".format(com,id_ev))
     connection.commit()
 
+    flash(' Comentario Enviado', 'success_coment')
+
+    return redirect(url_for('proyecto',id=id_proy))
+
+@app.route('/coordinador/Coordproyectos/proyecto/editcoment', methods=['POST'])
+def editcoment():
+    if not "login" in session:
+        return redirect("/")
+
+    com=request.form['comentario']
+    id_ev=request.form['id_ev']
+    id_proy=request.form['id_proy']
+
+    cursor=connection.cursor()
+    cursor.execute("update evidencia set comentario='{0}' where idev={1}".format(com,id_ev))
+    connection.commit()
+
+    flash(' Comentario Actualizado', 'success_editcoment')
+
     return redirect(url_for('proyecto',id=id_proy))
 
 
@@ -731,6 +823,8 @@ def crear_evidencia():
     data = (idproy,titulo,descripcion)
     cursor.execute(sql, data)
     connection.commit()
+
+    flash(' Evidencia Creada', 'success_ev')
 
     return redirect(url_for('proyecto',id=idproy))
 
@@ -833,7 +927,7 @@ def evidencia():
     cursor.execute( "update evidencia set archivo='{0}' where idev={1}".format(archivo,idev))
     connection.commit()
 
-    flash(" Evidencia enviada")
+    flash(" Evidencia enviada",'editar_ev')
 
     return redirect(url_for('ver_evidencia',id=idproy, list_Photos = listaArchivos()))
 
