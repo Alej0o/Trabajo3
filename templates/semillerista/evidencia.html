@@ -1,0 +1,55 @@
+{% include 'semillerista/cabecera.html' %}
+
+{% with messages =get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category=='editar_ev' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ </div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="container">
+<!-- Tasks -->
+<div class="row row-col-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 mt-3">
+    {% for evidencia in evidencias %}
+
+        <div class="col-sm-4">
+            <div class="card">
+                <div class="card-header">
+                    {{evidencia[2]}}
+                </div>
+                <div class="card-body">
+                    <div class="col-sm-10">
+                        <input type="text" readonly class="form-control-plaintext" id="staticEmail" value="{{ evidencia[3] }}">
+                    </div>
+                    <form action='/semillerista/proyecto/evidencia' method="POST" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <input class="form-control form-control-sm" type="file" id="formFileSm" name="archivo" required>
+                        </div>
+                        <input type="hidden" value="{{evidencia[0]}}" name="idev">
+                        <input type="hidden" value="{{evidencia[1]}}" name="idproy">
+                        {% if evidencia[4] %}
+                            <button type="submit" class="btn btn-primary w-100">Editar Entrega</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-primary w-100">Adjuntar Entrega</button>
+                        {% endif %}
+                    </form>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    {% if evidencia[4] %}
+                        <button type="button" class="btn btn-sm btn-success" data-bs-trigger="focus" data-toggle="popover" data-bs-content="{{evidencia[5]}}">Comentario</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    {% endfor %}
+</div>
+</div>
+
+{% include 'semillerista/pie.html' %}

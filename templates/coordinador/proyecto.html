@@ -1,0 +1,144 @@
+{% include 'coordinador/cabecera.html' %}
+
+{% with messages =get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category=='success_ev' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ </div>
+{% elif category=='elim_ev' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+ </div>
+{% elif category=='success_editcoment' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif category=='success_coment' %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    <strong>Success</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="card mt-3 w-25 mx-auto d-block">
+    <div class="card-body d-flex">
+        <img src="{{url_for('static', filename='imgs/circle-plus-solid.svg')}}" width="25" class="mx-auto d-block" data-bs-toggle="modal" data-bs-target="#task-modalevidencia">
+    </div>
+</div>
+
+
+<div class="container">
+    <div class="row row-col-1 row-cols-sm-1 row-cols-md-3 row-cols-lg-4 mt-3">
+    {% for evidencia in evidencias %}
+    <div class="col-md-3">
+        <div class="card mb-3" >
+            <div class="card-header">
+                {{ evidencia[2] }}
+            </div>
+            <div class="card-body">
+                {{ evidencia[3] }}
+            </div>
+            <div class="card-footer d-flex justify-content-between">
+                <form action="/delete-task" method="POST">
+                    <input type="hidden" value="{{ evidencia[0] }}" name="id_ev">
+                    <input type="hidden" value="{{ evidencia[1] }}" name="id_proy">
+                    <button type="submit" class="btn btn-danger w-100">Eliminar</button>
+                </form>
+                <button class="btn btn-info" id="btn-edit{{ evidencia[0]}}" data-bs-toggle="modal" data-bs-target="#modal{{evidencia[0]}}">Archivo</button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    </div>
+
+
+  <!-- Task Modal -->
+  <div class="modal fade" id="task-modalevidencia" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Crear Evidencia</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+         <form action="/new-evidencia" method="post" autocomplete="off" enctype="multipart/form-data">
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" name="title_ev" id="title_ev" aria-describedby="helpId" placeholder="Titulo" required autofocus> 
+                <label for="title_ev">Titulo</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <textarea class="form-control" name="desc_ev" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus></textarea>
+                <label for="floatingTextarea2">Descripción</label>
+            </div>
+
+            {% for id in idev %}
+            <input value='{{ id[0] }}' class="form-control mb-3" type="hidden" name="idproy_ev">
+            {% endfor %}
+
+            <button type="submit" class="btn btn-primary w-100">Guardar</button>
+         </form>
+        </div>
+    </div>
+    </div>
+    </div>
+
+    {% for evidencia in evidencias %}
+    <div class="modal fade" id="modal{{evidencia[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">Entregable</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                    {% if evidencia[4] %}
+                        <div class="media-body mb-3">
+                        <section id="btns">
+                         <a href="/coordinador/Coordproyectos/descargar/{{ evidencia[4] }}" class="btn btn-info" style="margin-top: 40px;" title="Descargar Archivo">Descargar Archivo</a>
+                        </section>
+                        </div>
+                        {% if evidencia[5] %}
+                        <form action="/coordinador/Coordproyectos/proyecto/editcoment" method="post" autocomplete="off">
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" name="comentario" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus>{{evidencia[5]}}</textarea>
+                                <label for="floatingTextarea2">Comentario</label>
+                            </div>
+                            <input value='{{ evidencia[0] }}' class="form-control mb-3" type="hidden" name="id_ev">
+                            <input value='{{ evidencia[1] }}' class="form-control mb-3" type="hidden" name="id_proy">
+                            <button type="submit" class="btn btn-primary w-100">Editar</button>
+                        </form>
+                        {% else %}
+                        <form action="/coordinador/Coordproyectos/proyecto/comentar" method="post" autocomplete="off">
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" name="comentario" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus>Agrega un Comentario</textarea>
+                                <label for="floatingTextarea2">Comentario</label>
+                            </div>
+                            <input value='{{ evidencia[0] }}' class="form-control mb-3" type="hidden" name="id_ev">
+                            <input value='{{ evidencia[1] }}' class="form-control mb-3" type="hidden" name="id_proy">
+                            <button type="submit" class="btn btn-primary w-100">Enviar</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                        <h3>No hay archivos</h3>
+                    {% endif %}
+                </div>
+          </div>
+        </div>
+        </div>
+        {% endfor %}
+
+
+
+
+{% include 'coordinador/pie.html' %}

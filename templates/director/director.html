@@ -1,0 +1,187 @@
+{% include 'director/cabecera.html' %}
+
+
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-header">
+                    Datos del Semillero
+                </div>
+                <div class="card-body">
+                    <form action="/director/semilleros/guardar" method="post">
+                        <div class="mb-3">
+                          <label for="txtNombre" class="form-label">Nombre:</label>
+                          <input type="text" required autofocus
+                            class="form-control" name="txtNombre" id="" aria-describedby="helpId" placeholder="Escriba el nombre del semillero">
+                        </div>
+
+                        <div class="mb-3">
+                          <label for="txtUbicacion" class="form-label">Ubicación</label>
+                          <input type="text" required autofocus
+                            class="form-control" name="txtUbicacion" id="" aria-describedby="helpId" placeholder="Escriba la ubicacion del semillero">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="form-label">Email Coordinador Semillero</label>
+                            <input name="email"  required autofocus type="email" class="form-control" id="floatingInput" placeholder="Ingrese su correo">   
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Crear</button>
+                    </form>
+
+                </div>
+                <div class="card-footer text-muted">
+                    {% with messages =get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                    {% for category,message in messages %}
+                    {% if category=='error' %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error</strong>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% elif category=='error1' %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>Error</strong>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% elif category=='success' %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success</strong>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-7">
+            {% with messages =get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            {% for category,message in messages %}
+            {% if category=='success1' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% elif category=='erroreditsem' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% elif category=='error5' %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <strong>Error</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% elif category=='success2' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Ubicacion</th>
+                            <th scope="col">Coordinador</th>
+                            <th scope="col">Opción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for semillero in semilleros %}
+                        <tr>
+                            <td>{{ semillero[1] }}</td>
+                            <td>{{ semillero[2] }}</td>
+                            <td>{{ semillero[3] }}</td>
+                            <td>
+                                <br>
+                                <button class="btn btn-info btn-sm mb-3" id="btn-edit{{semillero[0]}}" data-bs-toggle="modal" data-bs-target="#modal{{semillero[0]}}">Editar</button>
+                                <button class="btn btn-danger btn-sm"  id="btn-edit{{semillero[0]}}" data-bs-toggle="modal" data-bs-target="#modalelim{{semillero[0]}}">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+        </div>
+        
+    </div>
+</div>
+
+<!--Modal-->
+{% for semillero in semilleros %}
+<div class="modal fade" id="modal{{semillero[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Editar Semillero</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form  action="/director/semilleros/editar/{{semillero[0]}}" method="post">
+                <div class="mb-3">
+                    <label for="txtNombre" class="form-label">Nombre:</label>
+                    <input type="text" value='{{semillero[1]}}'  required autofocus
+                    class="form-control" name="txtNombre" id="" aria-describedby="helpId" placeholder="Escriba el nombre del semillero">
+                </div>
+
+                <div class="mb-3">
+                    <label for="txtUbicacion" class="form-label">Ubicación</label>
+                    <input type="text" value='{{semillero[2]}}' required autofocus
+                    class="form-control" name="txtUbicacion" id="" aria-describedby="helpId" placeholder="Escriba la ubicacion del semillero">
+                </div>
+
+                <div class="mb-3">
+                    <label for="form-label">Email Coordinador Semillero</label>
+                    <input name="emailnuevo" value='{{semillero[3]}}' required autofocus type="email" class="form-control" id="floatingInput" placeholder="Ingrese correo coordinador">   
+                </div>
+
+                <div class="mb-3">
+                    <input name="emailactual" value='{{semillero[3]}}' required autofocus type="hidden" class="form-control" id="floatingInput" placeholder="Ingrese correo coordinador">   
+                </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-success">Save changes</button>
+        </div>
+            </form>
+      </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for semillero in semilleros %}
+<div class="modal fade" id="modalelim{{semillero[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación Eliminar Semillero</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            ¿Esta seguro que desea eliminar este semillero?
+        </div>
+        <div class="modal-footer">
+            <form action="/director/semilleros/eliminar" method='post'>
+                <input value='{{ semillero[0] }}' type="hidden" name="txtID" id="">
+                <input value='{{ semillero[3] }}' type="hidden" name="email" id="">
+                <button type="submit" class="btn btn-danger">Si</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+{% endfor %}
+
+{% include 'director/pie.html' %}

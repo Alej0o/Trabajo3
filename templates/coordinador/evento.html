@@ -1,0 +1,192 @@
+
+{% include 'coordinador/cabecera.html' %}
+
+
+<br>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    Datos del Evento
+                </div>
+                <div class="card-body">
+                    <form action="/coordinador/eventos/guardar" method="post">
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="txtNombre" id="txtNombre" aria-describedby="helpId" placeholder="Escriba el nombre del evento" required autofocus>
+                            <label for="txtNombre">Nombre</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" name="txtUbicacion" id="txtUbicacion" aria-describedby="helpId" placeholder="Lugar del evento" required autofocus>
+                            <label for="txtUbicacion">Ubicación</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control"  name="txtDescripcion" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus></textarea>
+                            <label for="floatingTextarea2">Descripción</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control"  type="date" name="dateInicio" value="{{fecha_actual}}" min="{{fecha_actual}}" id="Fecha_Inicio" required autofocus>
+                            <label for="Fecha_Inicio">Fecha Inicio</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control"  type="time" value="{{hora_actual}}" name="hora" id="hora" required autofocus>
+                            <label for="hora">Hora</label>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <input class="form-control"  type="date" name="dateFin" value="{{fecha_actual}}" min="{{fecha_actual}}" id="Fecha_Fin">
+                            <label for="Fecha_Fin">Fecha Fin</label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info">Crear</button>
+                    </form>
+                </div>
+
+                <div class="card-footer text-muted">
+                    {% with messages =get_flashed_messages(with_categories=True) %}
+                    {% if messages %}
+                    {% for category,message in messages %}
+                    {% if category=='success_evento' %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <strong>Success</strong>{{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            {% with messages =get_flashed_messages(with_categories=True) %}
+            {% if messages %}
+            {% for category,message in messages %}
+            {% if category=='success_evento_elim' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% elif category=='success_evento_update' %}
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <strong>Success</strong>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endwith %}
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Ubicacion</th>
+                            <th scope="col">Fecha Inicio</th>
+                            <th scope="col">Fecha Fin</th>
+                            <th scope="col">Opcion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for evento in eventos %}
+                        <tr>
+                            <td>{{ evento[1] }}</td>
+                            <td>{{ evento[2] }}</td>
+                            <td>{{ evento[4] }}</td>
+                            <td>{{ evento[6] }}</td>
+                            <td>
+                                <button class="btn btn-info btn-sm mb-3 alinear" id="btn-edit{{evento[0]}}" data-bs-toggle="modal" data-bs-target="#modal{{evento[0]}}">Editar</button>
+                                <a class="btn btn-warning btn-sm alinear_vinc mb-3" href="/coordinador/Coordproyectos/eventos/vincular/{{ evento[0] }}" role="button">Vincular</a>
+                                <button class="btn btn-danger btn-sm alinear"  id="btn-edit{{evento[0]}}" data-bs-toggle="modal" data-bs-target="#modalelim{{evento[0]}}">Eliminar</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+
+<!--Modal-->
+{% for evento in eventos %}
+<div class="modal fade" id="modal{{evento[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Editar Evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form  action="/coordinador/eventos/editar/{{evento[0]}}" method="post">
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control" value="{{evento[1]}}" name="txtNombre" id="txtNombre" aria-describedby="helpId" placeholder="Escriba el nombre del evento" required autofocus>
+                    <label for="txtNombre">Nombre</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control"  value="{{evento[2]}}" name="txtUbicacion" id="txtUbicacion" aria-describedby="helpId" placeholder="Lugar del evento" required autofocus>
+                    <label for="txtUbicacion">Ubicación</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <textarea class="form-control"  name="txtDescripcion" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px; resize: none;" required autofocus>{{evento[3]}}</textarea>
+                    <label for="floatingTextarea2">Descripción</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input class="form-control"  type="date" value="{{evento[4]}}" name="dateInicio"  min="{{evento[4]}}" id="Fecha_Inicio" required autofocus>
+                    <label for="Fecha_Inicio">Fecha Inicio</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input class="form-control"  type="time" value="{{evento[5]}}" name="hora" id="hora" required autofocus>
+                    <label for="hora">Hora</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input class="form-control"  type="date" name="dateFin" value="{{evento[6]}}" min="{{evento[4]}}" id="Fecha_Fin">
+                    <label for="Fecha_Fin">Fecha Fin</label>
+                </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-outline-primary">Guardar Cambios</button>
+        </div>
+            </form>
+      </div>
+    </div>
+</div>
+{% endfor %}
+
+{% for evento in eventos %}
+<div class="modal fade" id="modalelim{{evento[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación Eliminar Evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            ¿Esta seguro que desea eliminar este evento?
+        </div>
+        <div class="modal-footer">
+            <form action="/coordinador/eventos/eliminar" method='post'>
+                <input value='{{ evento[0] }}' type="hidden" name="codeve" id="">
+                <button type="submit" class="btn btn-danger">Si</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+{% endfor %}
+
+
+{% include 'coordinador/pie.html' %}

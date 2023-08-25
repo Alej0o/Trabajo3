@@ -1,0 +1,93 @@
+{% include 'coordinador/cabecera.html' %}
+
+<br>
+<div class="container">
+    <div class="row">
+        {% with messages =get_flashed_messages(with_categories=True) %}
+{% if messages %}
+{% for category, message in messages %}
+{% if category=='errorints' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+  <strong>Error</strong>{{ message }}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% elif category=='errorintrep' %}
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    <strong>Error</strong>{{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+        <div class="col-md-5">
+            <div class="table-responsive">
+                <table class="table table-bordered" >
+                    <thead>
+                        <h3><strong>USUARIOS DE MI SEMILLERO</strong></h3>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Agregar</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sem in semest %}
+                        <tr class="">
+                            <td>{{ sem[1] }}</td>
+                            <td>{{ sem[2] }}</td>
+                            <td>
+                                <form action="/coordinador/Coordproyectos/agregarpart" method='post'>
+                                    <input value='{{ sem[0] }}' type="hidden" name="idus" id="">
+                                    <input value='{{ idproy}}' type="hidden" name="idproy" id="">  
+                                    <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>     
+            </div>
+            </div>
+
+        
+            <div class="col-md-7">
+                <div class="table-responsive">
+                    <table class="table table-bordered" >
+                        <thead>
+                            <h3><strong>PARTICIPANTES DEL PROYECTO</strong></h3>
+                            <tr>
+                                <th scope="col">#Proyecto</th>
+                                <th scope="col">Nombre</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Agregar</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for participante in participantes %}
+                            <tr class="">
+                                <td>{{ participante[0] }}</td>
+                                <td>{{ participante[1] }}</td>
+                                <td>{{ participante[2] }}</td>
+                                <td>
+                                    <form action="/coordinador/Coordproyectos/quitarpart" method='post'>
+                                        <input value='{{ participante[3] }}' type="hidden" name="idus" id="">
+                                        <input value='{{ participante[0] }}' type="hidden" name="idproy" id="">
+                                        <button type="submit" class="btn btn-danger btn-sm">Quitar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+    
+                </div>
+                
+            </div>
+        </div>
+    </div>
+
+
+
+{% include 'coordinador/pie.html' %}

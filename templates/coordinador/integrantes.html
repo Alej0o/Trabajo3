@@ -1,0 +1,105 @@
+{% include 'coordinador/cabecera.html' %}
+
+<br>
+<div class="container">
+    <div class="row">
+        {% with messages =get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+        {% for category,message in messages %}
+        {% if category=='successint' %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success</strong>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% else %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success</strong>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div class="col-md-6">
+            <div class="table-responsive">
+                <table class="table table-bordered" >
+                    <thead>
+                        <h3><strong>AGREGAR USUARIOS</strong></h3>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Agregar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for integrante in integrantes %}
+                        <tr class="">
+                            <td>{{ integrante[1] }}</td>
+                            <td>{{ integrante[2] }}</td>
+                            <td>
+                                <form action="/coordinador/integrantes/agregar" method='post'>
+                                    <input value='{{ integrante[0] }}' type="text" name="idus" id="">
+                                    {% for semi in sem %}
+                                    <input value='{{ sem[0][0] }}' type="text" name="idsem" id="">
+                                    {% endfor %}
+                                    <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            
+        </div>
+        
+        <div class="col-md-6">
+            <div class="table-responsive">
+                <table class="table table-bordered" >
+                    <thead>
+                        <h3><strong>USUARIOS DE MI SEMILLERO</strong></h3>
+                        <tr>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Acción</th> 
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sem in semest %}
+                        <tr class="">
+                            <td>{{ sem[1] }}</td>
+                            <td>{{ sem[2] }}</td>
+                            <td><button class="btn btn-danger btn-sm"  id="btn-edit{{sem[0]}}" data-bs-toggle="modal" data-bs-target="#modalelim{{sem[0]}}">Eliminar</button></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+{% for sem in semest %}
+<div class="modal fade" id="modalelim{{sem[0]}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Confirmación Eliminar Integrante</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            ¿Esta seguro que desea eliminar este integrante?
+        </div>
+        <div class="modal-footer">
+            <a href="{{url_for('delete', id=sem[0] )}}" class="btn btn-danger">Si</a>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+        </div>
+      </div>
+    </div>
+</div>
+{% endfor %}
+
+{% include 'coordinador/pie.html' %}
